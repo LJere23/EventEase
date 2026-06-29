@@ -22,8 +22,8 @@ export function BrandLogo({ size = 'md', href = '/', color, className = '' }: Br
 
   const text = (
     <span style={{ ...fontStyle, color: color ?? 'inherit' }} className={className}>
-      <span style={{ color: color ?? '#741353' }}>Event</span>
-      <span style={{ color: color ?? '#E9409B' }}>Ease</span>
+      <span style={{ color: color ?? '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
+      <span style={{ color: color ?? '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
     </span>
   );
 
