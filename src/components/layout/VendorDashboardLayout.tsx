@@ -3,25 +3,26 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, CalendarPlus, Calendar, Users, Bookmark,
-  Ticket, Settings, LogOut, Menu, X, Bell, Sparkles, Sun, Moon,
-  ChevronRight, TrendingUp
+  LayoutDashboard, Package, Calendar, MessageSquare, BarChart2,
+  Settings, LogOut, Menu, X, Bell, Sun, Moon, ChevronRight,
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-  { icon: CalendarPlus, label: 'Create Event', href: '/events/new' },
-  { icon: Calendar, label: 'My Events', href: '/events' },
-  { icon: Users, label: 'Vendor Bookings', href: '/bookings' },
-  { icon: Bookmark, label: 'Saved Vendors', href: '/vendors/saved' },
-  { icon: Ticket, label: 'My Tickets', href: '/tickets' },
-  { icon: TrendingUp, label: 'Upgrade', href: '/upgrade', accent: true },
-  { icon: Settings, label: 'Settings', href: '/settings' },
+  { icon: LayoutDashboard, label: 'Overview', href: '/vendor-dashboard' },
+  { icon: Package, label: 'My Services', href: '/vendor-dashboard/services' },
+  { icon: Calendar, label: 'Bookings', href: '/vendor-dashboard/bookings' },
+  { icon: MessageSquare, label: 'Quote Requests', href: '/vendor-dashboard/quotes' },
+  { icon: BarChart2, label: 'Analytics', href: '/vendor-dashboard/analytics' },
+  { icon: Settings, label: 'Settings', href: '/vendor-dashboard/settings' },
 ];
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+export function VendorDashboardLayout({ children, businessName = 'My Business', initial = 'V' }: {
+  children: React.ReactNode;
+  businessName?: string;
+  initial?: string;
+}) {
   const pathname = usePathname();
   const { theme, toggle } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,7 +37,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         )}
         style={{ background: 'var(--bg-primary)', borderRight: '1px solid var(--border)' }}
       >
-        {/* Logo */}
         <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border)' }}>
           <Link href="/">
             <span className="font-poppins font-bold text-xl" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -49,21 +49,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </button>
         </div>
 
-        {/* User badge */}
+        {/* Vendor badge */}
         <div className="p-4 m-4 rounded-xl" style={{ background: 'var(--primary-light)' }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
               style={{ background: 'var(--teal-deep)', fontFamily: "'Poppins', sans-serif" }}>
-              TC
+              {initial}
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-sm truncate font-poppins" style={{ color: 'var(--text-primary)' }}>Tendai Chari</p>
-              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Free Plan</p>
+              <p className="font-semibold text-sm truncate font-poppins" style={{ color: 'var(--text-primary)' }}>{businessName}</p>
+              <p className="text-xs" style={{ color: 'var(--teal)' }}>Vendor Account</p>
             </div>
           </div>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-3 py-2 overflow-y-auto">
           {navItems.map(item => {
             const Icon = item.icon;
@@ -73,17 +72,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm font-medium transition-all group',
-                  active
-                    ? 'text-white'
-                    : item.accent
-                    ? 'font-semibold'
-                    : ''
-                )}
+                className={cn('flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm font-medium transition-all')}
                 style={{
                   background: active ? 'var(--teal-deep)' : 'transparent',
-                  color: active ? 'white' : item.accent ? 'var(--pink)' : 'var(--text-secondary)',
+                  color: active ? 'white' : 'var(--text-secondary)',
                   fontFamily: "'Poppins', sans-serif",
                 }}
               >
@@ -95,10 +87,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Bottom */}
         <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <Link href="/dashboard"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm mb-1"
+            style={{ color: 'var(--text-secondary)' }}>
+            <LayoutDashboard size={16} /> Organiser Dashboard
+          </Link>
           <button
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm transition-colors hover:bg-red-50"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm transition-colors"
             style={{ color: '#ef4444', fontFamily: "'Poppins', sans-serif" }}
           >
             <LogOut size={17} /> Sign Out
@@ -106,34 +102,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 lg:hidden bg-black/40 backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-30 lg:hidden bg-black/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
         <header
           className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 py-3 border-b"
           style={{ background: 'var(--bg-primary)', borderColor: 'var(--border)' }}
         >
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg"
-            style={{ color: 'var(--text-primary)' }}
-          >
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg" style={{ color: 'var(--text-primary)' }}>
             <Menu size={20} />
           </button>
-
-          <div className="hidden lg:flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-            <Sparkles size={15} style={{ color: 'var(--teal)' }} />
-            Event Planning Dashboard
+          <div className="hidden lg:flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
+            Vendor Dashboard
           </div>
-
           <div className="flex items-center gap-3">
             <button className="relative p-2 rounded-lg" style={{ color: 'var(--text-secondary)' }}>
               <Bell size={18} />
@@ -147,7 +130,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           {children}
         </main>

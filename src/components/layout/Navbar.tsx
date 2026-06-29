@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from './ThemeProvider';
-import { Menu, X, Sun, Moon, ChevronDown } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -39,8 +39,8 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="relative">
-            <span className="font-poppins font-bold text-2xl" style={{ color: 'var(--teal)', fontFamily: "'Poppins', cursive" }}>
-              Event<span style={{ color: 'var(--gold)' }}>Ease</span>
+            <span className="font-poppins font-bold text-2xl" style={{ color: 'var(--plum)', fontFamily: "'Poppins', sans-serif" }}>
+              Event<span style={{ color: 'var(--pink)' }}>Ease</span>
             </span>
           </div>
         </Link>

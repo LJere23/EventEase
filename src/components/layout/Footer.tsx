@@ -34,12 +34,12 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-poppins font-bold text-2xl" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                <span style={{ color: 'var(--teal)' }}>Event</span>
-                <span style={{ color: 'var(--gold)' }}>Ease</span>
+                <span style={{ color: 'var(--plum)' }}>Event</span>
+                <span style={{ color: 'var(--pink)' }}>Ease</span>
               </span>
             </Link>
             <p className="text-sm leading-relaxed mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>
-              Zimbabwe&apos;s first AI-powered event planning and vendor marketplace. Plan smarter, connect faster, celebrate better.
+              Zimbabwe&apos;s all-in-one event planning and vendor marketplace. Find vetted vendors, plan your event, and celebrate — all in one place.
             </p>
             <div className="flex items-center gap-4">
               <a href="mailto:hello@eventease.co.zw" className="flex items-center gap-2 text-sm hover:text-[var(--teal)] transition-colors" style={{ color: 'var(--text-secondary)' }}>
@@ -88,7 +88,7 @@ export function Footer() {
             © 2026 EventEase (Pvt) Ltd. All rights reserved. Built with ❤️ in Zimbabwe.
           </p>
           <div className="flex items-center gap-2">
-            <span className="badge badge-teal text-xs">AI-Powered</span>
+            <span className="badge badge-teal text-xs">All-In-One Platform</span>
             <span className="badge badge-gold text-xs">Zimbabwe's #1</span>
           </div>
         </div>
