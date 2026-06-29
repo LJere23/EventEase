@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import {
   Sparkles, Calendar, Users, DollarSign, MapPin, ChevronRight,
-  ChevronLeft, CheckCircle, Clock, Loader2
+  ChevronLeft, CheckCircle, Clock, Loader2, Plus, Trash2
 } from 'lucide-react';
 
 const EVENT_TYPES = [
@@ -24,17 +24,43 @@ const VENUE_PREFS = [
   { value: 'find', label: 'Help me find one', emoji: '🔍' },
 ];
 
+interface ChecklistItem { task: string; done: boolean; }
+interface ChecklistCategory { category: string; tasks: ChecklistItem[]; }
+
 interface AIResult {
-  checklist: { category: string; tasks: string[] }[];
+  checklist: ChecklistCategory[];
   timeline: { phase: string; tasks: string[] }[];
   budget: Record<string, number>;
   vendors: { name: string; category: string; reason: string }[];
 }
 
+const FALLBACK: AIResult = {
+  checklist: [
+    { category: 'Venue & Logistics', tasks: [{ task: 'Confirm venue booking', done: false }, { task: 'Arrange parking', done: false }, { task: 'Check accessibility', done: false }] },
+    { category: 'Catering', tasks: [{ task: 'Finalize menu', done: false }, { task: 'Confirm dietary requirements', done: false }, { task: 'Arrange serving staff', done: false }] },
+    { category: 'Décor & Flowers', tasks: [{ task: 'Book decorator', done: false }, { task: 'Choose colour scheme', done: false }, { task: 'Order floral arrangements', done: false }] },
+    { category: 'Entertainment', tasks: [{ task: 'Book DJ or band', done: false }, { task: 'Create playlist', done: false }, { task: 'Arrange MC', done: false }] },
+    { category: 'Photography', tasks: [{ task: 'Book photographer', done: false }, { task: 'Brief on key shots', done: false }, { task: 'Plan photo timeline', done: false }] },
+  ],
+  timeline: [
+    { phase: '3 Months Out', tasks: ['Book venue', 'Book caterer', 'Send save-the-dates'] },
+    { phase: '1 Month Out', tasks: ['Confirm all vendors', 'Send invitations', 'Plan seating'] },
+    { phase: '1 Week Out', tasks: ['Final vendor briefs', 'Confirm guest count', 'Prepare payment'] },
+    { phase: 'Day Of', tasks: ['Vendor arrival check', 'Run of show', 'Enjoy your event!'] },
+  ],
+  budget: { venue: 35, catering: 30, photography: 15, decor: 12, entertainment: 8 },
+  vendors: [
+    { name: 'Harare Grand Events', category: 'Venue', reason: 'Top-rated indoor venue for your guest count' },
+    { name: 'Royal Cuisine Catering', category: 'Catering', reason: 'Specialises in your event type and cuisine style' },
+    { name: 'Lens & Light Photography', category: 'Photography', reason: 'Award-winning wedding photography in Harare' },
+  ],
+};
+
 export default function CreateEventPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [aiResult, setAiResult] = useState<AIResult | null>(null);
+  const [newTask, setNewTask] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState({
     title: '',
@@ -58,34 +84,63 @@ export default function CreateEventPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      setAiResult(data);
-      setStep(4);
+      // Validate response has expected shape; fall back if not
+      if (data?.checklist && Array.isArray(data.checklist)) {
+        // Normalise tasks to {task, done} objects
+        const normalised: AIResult = {
+          ...data,
+          checklist: data.checklist.map((cat: { category: string; tasks: (string | ChecklistItem)[] }) => ({
+            category: cat.category,
+            tasks: cat.tasks.map((t: string | ChecklistItem) =>
+              typeof t === 'string' ? { task: t, done: false } : t
+            ),
+          })),
+        };
+        setAiResult(normalised);
+      } else {
+        setAiResult(FALLBACK);
+      }
     } catch {
-      // Fallback mock for demo
-      setAiResult({
-        checklist: [
-          { category: 'Venue & Logistics', tasks: ['Confirm venue booking', 'Arrange parking', 'Check accessibility'] },
-          { category: 'Catering', tasks: ['Finalize menu', 'Confirm dietary requirements', 'Arrange serving staff'] },
-          { category: 'Decor & Flowers', tasks: ['Book decorator', 'Choose colour scheme', 'Order floral arrangements'] },
-          { category: 'Entertainment', tasks: ['Book DJ or band', 'Create playlist', 'Arrange MC'] },
-          { category: 'Photography', tasks: ['Book photographer', 'Brief on key shots', 'Plan photo timeline'] },
-        ],
-        timeline: [
-          { phase: '3 Months Out', tasks: ['Book venue', 'Book caterer', 'Send save-the-dates'] },
-          { phase: '1 Month Out', tasks: ['Confirm all vendors', 'Send invitations', 'Plan seating'] },
-          { phase: '1 Week Out', tasks: ['Final vendor briefs', 'Confirm guest count', 'Prepare payment'] },
-          { phase: 'Day Of', tasks: ['Vendor arrival check', 'Run of show', 'Enjoy your event!'] },
-        ],
-        budget: { venue: 35, catering: 30, photography: 15, decor: 12, entertainment: 8 },
-        vendors: [
-          { name: 'Harare Grand Events', category: 'Venue', reason: 'Top-rated indoor venue for your guest count' },
-          { name: 'Royal Cuisine Catering', category: 'Catering', reason: 'Specialises in your event type and cuisine style' },
-          { name: 'Lens & Light Photography', category: 'Photography', reason: 'Award-winning wedding photography in Harare' },
-        ],
-      });
-      setStep(4);
+      setAiResult(FALLBACK);
     }
     setLoading(false);
+    setStep(4);
+  };
+
+  const toggleTask = (catIdx: number, taskIdx: number) => {
+    setAiResult(prev => {
+      if (!prev) return prev;
+      const checklist = prev.checklist.map((cat, ci) =>
+        ci !== catIdx ? cat : {
+          ...cat,
+          tasks: cat.tasks.map((t, ti) => ti !== taskIdx ? t : { ...t, done: !t.done }),
+        }
+      );
+      return { ...prev, checklist };
+    });
+  };
+
+  const addTask = (catIdx: number) => {
+    const text = (newTask[catIdx] || '').trim();
+    if (!text) return;
+    setAiResult(prev => {
+      if (!prev) return prev;
+      const checklist = prev.checklist.map((cat, ci) =>
+        ci !== catIdx ? cat : { ...cat, tasks: [...cat.tasks, { task: text, done: false }] }
+      );
+      return { ...prev, checklist };
+    });
+    setNewTask(n => ({ ...n, [catIdx]: '' }));
+  };
+
+  const removeTask = (catIdx: number, taskIdx: number) => {
+    setAiResult(prev => {
+      if (!prev) return prev;
+      const checklist = prev.checklist.map((cat, ci) =>
+        ci !== catIdx ? cat : { ...cat, tasks: cat.tasks.filter((_, ti) => ti !== taskIdx) }
+      );
+      return { ...prev, checklist };
+    });
   };
 
   const STEPS = ['Event Details', 'Preferences', 'Budget', 'AI Plan'];
@@ -347,22 +402,55 @@ export default function CreateEventPage() {
 
             {/* Checklist */}
             <div className="card p-6">
-              <h3 className="font-poppins font-semibold text-lg mb-4" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
-                📋 Event Checklist
-              </h3>
-              <div className="flex flex-col gap-4">
-                {aiResult.checklist.map(cat => (
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-poppins font-semibold text-lg" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
+                  📋 Event Checklist
+                </h3>
+                <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'var(--primary-light)', color: 'var(--teal-deep)' }}>
+                  {aiResult.checklist.flatMap(c => c.tasks).filter(t => t.done).length} / {aiResult.checklist.flatMap(c => c.tasks).length} done
+                </span>
+              </div>
+              <div className="flex flex-col gap-5">
+                {aiResult.checklist.map((cat, catIdx) => (
                   <div key={cat.category}>
                     <p className="font-semibold text-sm mb-2 font-poppins" style={{ color: 'var(--teal)', fontFamily: "'Poppins', sans-serif" }}>
                       {cat.category}
                     </p>
                     <div className="flex flex-col gap-1.5">
-                      {cat.tasks.map(task => (
-                        <div key={task} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                          <div className="w-4 h-4 rounded border flex-shrink-0" style={{ borderColor: 'var(--border)' }} />
-                          {task}
+                      {cat.tasks.map((t, taskIdx) => (
+                        <div key={taskIdx} className="flex items-center gap-2 group">
+                          <button onClick={() => toggleTask(catIdx, taskIdx)}
+                            className="w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-all"
+                            style={{ borderColor: t.done ? 'var(--teal)' : 'var(--border)', background: t.done ? 'var(--teal)' : 'transparent' }}>
+                            {t.done && <CheckCircle size={12} className="text-white" />}
+                          </button>
+                          <span className="text-sm flex-1" style={{ color: 'var(--text-secondary)', textDecoration: t.done ? 'line-through' : 'none', opacity: t.done ? 0.5 : 1 }}>
+                            {t.task}
+                          </span>
+                          <button onClick={() => removeTask(catIdx, taskIdx)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ color: '#ef4444' }}>
+                            <Trash2 size={12} />
+                          </button>
                         </div>
                       ))}
+                      {/* Add task input */}
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-4 h-4 flex-shrink-0" />
+                        <input
+                          className="text-sm flex-1 bg-transparent border-b outline-none"
+                          style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                          placeholder="+ Add a task…"
+                          value={newTask[catIdx] || ''}
+                          onChange={e => setNewTask(n => ({ ...n, [catIdx]: e.target.value }))}
+                          onKeyDown={e => e.key === 'Enter' && addTask(catIdx)}
+                        />
+                        {(newTask[catIdx] || '').trim() && (
+                          <button onClick={() => addTask(catIdx)} style={{ color: 'var(--teal)' }}>
+                            <Plus size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -443,10 +531,29 @@ export default function CreateEventPage() {
             </div>
 
             <button
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => {
+                if (!aiResult) return;
+                const event = {
+                  id: `evt_${Date.now()}`,
+                  title: form.title || `${form.eventType} Event`,
+                  type: form.eventType,
+                  date: form.date,
+                  guestCount: form.guestCount,
+                  budget: form.budget,
+                  status: 'planning',
+                  checklist: aiResult.checklist,
+                  timeline: aiResult.timeline,
+                  budgetAllocation: aiResult.budget,
+                  vendors: aiResult.vendors,
+                  createdAt: new Date().toISOString(),
+                };
+                const existing = JSON.parse(localStorage.getItem('ee-events') || '[]');
+                localStorage.setItem('ee-events', JSON.stringify([event, ...existing]));
+                window.location.href = '/events';
+              }}
               className="btn-glow btn-ripple w-full justify-center"
             >
-              <CheckCircle size={16} /> Save to Dashboard
+              <CheckCircle size={16} /> Save Event to My Events
             </button>
           </div>
         )}

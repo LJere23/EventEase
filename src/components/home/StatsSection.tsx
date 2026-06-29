@@ -1,61 +1,58 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { useScrollReveal } from '@/lib/useScrollReveal';
 
 const stats = [
   { value: 500, suffix: '+', label: 'Events Planned', description: 'Across Zimbabwe' },
-  { value: 50, suffix: '+', label: 'Vetted Vendors', description: 'In every category' },
-  { value: 12, suffix: '', label: 'Event Categories', description: 'From weddings to corporate' },
-  { value: 98, suffix: '%', label: 'Client Satisfaction', description: 'Based on post-event surveys' },
+  { value: 50,  suffix: '+', label: 'Vetted Vendors',  description: 'In every category' },
+  { value: 12,  suffix: '',  label: 'Event Categories', description: 'From weddings to corporate' },
+  { value: 98,  suffix: '%', label: 'Client Satisfaction', description: 'Based on post-event surveys' },
 ];
 
 export function StatsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(sectionRef, '.stat-card', { staggerMs: 120, durationMs: 650, yPx: 32 });
 
+  // Counter animation — runs after cards are visible
   useEffect(() => {
-    const init = async () => {
-      const { gsap } = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      gsap.registerPlugin(ScrollTrigger);
+    const section = sectionRef.current;
+    if (!section) return;
 
-      stats.forEach((stat, i) => {
-        const el = document.querySelector(`[data-target="${stat.value}"]`) as HTMLElement;
+    const runCounters = () => {
+      stats.forEach(stat => {
+        const el = section.querySelector<HTMLElement>(`[data-target="${stat.value}"]`);
         if (!el) return;
-        const obj = { val: 0 };
-        gsap.to(obj, {
-          val: stat.value,
-          duration: 2,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-          onUpdate() {
-            el.textContent = Math.round(obj.val).toLocaleString() + stat.suffix;
-          },
-        });
-      });
-
-      gsap.from('.stat-card', {
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' },
-        y: 40,
-        opacity: 0,
-        stagger: 0.12,
-        duration: 0.7,
-        ease: 'power3.out',
+        let start = 0;
+        const step = stat.value / 60;
+        const tick = () => {
+          start = Math.min(start + step, stat.value);
+          el.textContent = Math.round(start).toLocaleString() + stat.suffix;
+          if (start < stat.value) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
       });
     };
-    init();
+
+    const observer = new IntersectionObserver(
+      entries => { if (entries[0].isIntersecting) { runCounters(); observer.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   return (
     <section ref={sectionRef} className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="stat-card">
+          {stats.map(stat => (
+            <div key={stat.label} className="stat-card card p-6 text-center">
               <div
-                className="text-4xl sm:text-5xl font-bold font-poppins mb-1"
-                style={{ color: 'var(--teal)', fontFamily: "'Poppins', sans-serif" }}
+                className="text-4xl sm:text-5xl font-bold font-poppins mb-2"
+                style={{ color: 'var(--teal-deep)', fontFamily: "'Poppins', sans-serif" }}
                 data-target={stat.value}
               >
-                0{stat.suffix}
+                {stat.value.toLocaleString()}{stat.suffix}
               </div>
               <div className="font-semibold font-poppins mb-1" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
                 {stat.label}

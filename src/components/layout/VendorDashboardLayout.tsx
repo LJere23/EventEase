@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, Package, Calendar, MessageSquare, BarChart2,
   Settings, LogOut, Menu, X, Bell, Sun, Moon, ChevronRight,
@@ -18,14 +19,34 @@ const navItems = [
   { icon: Settings, label: 'Settings', href: '/vendor-dashboard/settings' },
 ];
 
-export function VendorDashboardLayout({ children, businessName = 'My Business', initial = 'V' }: {
+export function VendorDashboardLayout({ children, businessName: propBusinessName, initial: propInitial }: {
   children: React.ReactNode;
   businessName?: string;
   initial?: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggle } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [businessName, setBusinessName] = useState(propBusinessName || '');
+  const [initial, setInitial] = useState(propInitial || '');
+
+  useEffect(() => {
+    if (propBusinessName && propInitial) return;
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Vendor';
+      if (!propBusinessName) setBusinessName(name);
+      if (!propInitial) setInitial(name.slice(0, 2).toUpperCase());
+    });
+  }, [propBusinessName, propInitial]);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg-secondary)' }}>
@@ -94,7 +115,8 @@ export function VendorDashboardLayout({ children, businessName = 'My Business', 
             <LayoutDashboard size={16} /> Organiser Dashboard
           </Link>
           <button
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm transition-colors"
+            onClick={handleSignOut}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm transition-colors hover:bg-red-50"
             style={{ color: '#ef4444', fontFamily: "'Poppins', sans-serif" }}
           >
             <LogOut size={17} /> Sign Out
