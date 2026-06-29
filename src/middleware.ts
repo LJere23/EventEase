@@ -40,6 +40,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Protect /vendors/* — require login to browse marketplace or see contacts
+  if (pathname.startsWith('/vendors')) {
+    if (!user) {
+      return NextResponse.redirect(new URL(`/login?from=vendors`, request.url));
+    }
+  }
+
   // Redirect already-logged-in users away from auth pages
   if ((pathname === '/login' || pathname === '/register') && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -54,6 +61,7 @@ export const config = {
     '/dashboard/:path*',
     '/events/:path*',
     '/vendor-dashboard/:path*',
+    '/vendors/:path*',
     '/login',
     '/register',
   ],

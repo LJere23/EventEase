@@ -10,6 +10,7 @@ import {
 import { useTheme } from './ThemeProvider';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { BrandLogo } from './BrandLogo';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard',      href: '/dashboard' },
@@ -66,12 +67,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       >
         {/* Logo */}
         <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border)' }}>
-          <Link href="/">
-            <span className="font-poppins font-bold text-xl" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              <span style={{ color: 'var(--plum)' }}>Event</span>
-              <span style={{ color: 'var(--pink)' }}>Ease</span>
-            </span>
-          </Link>
+          <BrandLogo size="md" />
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden" style={{ color: 'var(--text-secondary)' }}>
             <X size={18} />
           </button>

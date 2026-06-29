@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { useTheme } from './ThemeProvider';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from './BrandLogo';
 
 const navLinks = [
   { label: 'Services', href: '/services' },
-  { label: 'Vendors', href: '/vendors' },
+  { label: 'Gallery', href: '/gallery' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Blog', href: '/blog' },
   { label: 'About', href: '/about' },
@@ -37,13 +38,7 @@ export function Navbar() {
     }}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <div className="relative">
-            <span className="font-poppins font-bold text-2xl" style={{ color: 'var(--plum)', fontFamily: "'Poppins', sans-serif" }}>
-              Event<span style={{ color: 'var(--pink)' }}>Ease</span>
-            </span>
-          </div>
-        </Link>
+        <BrandLogo size="lg" />
 
         {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-1">

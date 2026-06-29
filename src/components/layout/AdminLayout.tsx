@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { BrandLogo } from './BrandLogo';
 import {
   LayoutDashboard, Store, CreditCard, Users, Calendar,
   BarChart2, Settings, LogOut, Menu, X, Bell, ShieldCheck,
@@ -50,9 +51,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <ShieldCheck size={16} className="text-white" />
             </div>
             <div>
-              <span className="font-poppins font-bold text-base text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                <span style={{ color: '#A0E5E5' }}>Event</span>Ease
-              </span>
+              <BrandLogo size="md" href="" color="#A0E5E5" />
               <p className="text-xs" style={{ color: 'rgba(160,229,229,0.6)', lineHeight: 1 }}>Admin Panel</p>
             </div>
           </Link>

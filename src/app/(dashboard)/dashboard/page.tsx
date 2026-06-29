@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { CalendarPlus, Calendar, Users, CheckCircle, Clock, Star, TrendingUp, ArrowRight, Sparkles, MessageSquare, Send, Loader2 } from 'lucide-react';
+import { CalendarPlus, Calendar, Users, CheckCircle, Clock, Star, TrendingUp, ArrowRight, Sparkles, Send, Loader2, X, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
@@ -27,7 +27,10 @@ export default function DashboardPage() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+  const [bubbleOpen, setBubbleOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const bubbleChatEndRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Greeting based on time
@@ -51,7 +54,19 @@ export default function DashboardPage() {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bubbleChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chat]);
+
+  useEffect(() => {
+    if (!bubbleOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (bubbleRef.current && !bubbleRef.current.contains(e.target as Node)) {
+        setBubbleOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [bubbleOpen]);
 
   const sendChat = async (message: string) => {
     const text = message.trim();
@@ -89,7 +104,7 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h1 className="font-poppins font-bold text-2xl sm:text-3xl mb-1"
           style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
-          {greeting}{userName ? `, ${userName}` : ''} 👋
+          {greeting}{userName ? `, ${userName}` : ''}!
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
           {events.length > 0
@@ -206,8 +221,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* AI assistant */}
-          <div>
+          {/* AI assistant — desktop only; mobile uses floating bubble */}
+          <div className="hidden lg:block">
             <h2 className="font-poppins font-semibold text-lg mb-3" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
               Planning Assistant
             </h2>
@@ -286,6 +301,124 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Mobile floating AI chat bubble ── */}
+      <div ref={bubbleRef} className="lg:hidden">
+        {/* Expanded panel */}
+        {bubbleOpen && (
+          <div
+            className="fixed bottom-24 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm flex flex-col card shadow-2xl overflow-hidden"
+            style={{ maxHeight: '70vh' }}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+              style={{ background: 'var(--teal-deep)', borderRadius: '16px 16px 0 0' }}>
+              <div className="flex items-center gap-2">
+                <Sparkles size={15} color="white" />
+                <span className="text-sm font-semibold text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  Planning Assistant
+                </span>
+              </div>
+              <button onClick={() => setBubbleOpen(false)} className="text-white/70 hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 flex flex-col gap-3 overflow-y-auto p-4">
+              {chat.length === 0 && (
+                <div className="flex gap-2">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--teal-deep)' }}>
+                    <Sparkles size={13} color="white" />
+                  </div>
+                  <div className="text-sm p-3 rounded-xl rounded-tl-none flex-1" style={{ background: 'var(--primary-light)', color: 'var(--text-primary)' }}>
+                    Hi{userName ? ` ${userName}` : ''}! Ask me anything about planning your event.
+                  </div>
+                </div>
+              )}
+              {chat.map((m, i) => (
+                <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                  {m.role === 'assistant' && (
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--teal-deep)' }}>
+                      <Sparkles size={13} color="white" />
+                    </div>
+                  )}
+                  <div className="text-sm p-3 max-w-[85%]"
+                    style={{
+                      background: m.role === 'user' ? 'var(--teal-deep)' : 'var(--primary-light)',
+                      color: m.role === 'user' ? 'white' : 'var(--text-primary)',
+                      borderRadius: m.role === 'user' ? '12px 12px 0 12px' : '0 12px 12px 12px',
+                    }}>
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="flex gap-2">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--teal-deep)' }}>
+                    <Sparkles size={13} color="white" />
+                  </div>
+                  <div className="text-sm p-3 rounded-xl rounded-tl-none" style={{ background: 'var(--primary-light)', color: 'var(--text-secondary)' }}>
+                    <Loader2 size={14} className="animate-spin inline mr-1" />Thinking…
+                  </div>
+                </div>
+              )}
+              <div ref={bubbleChatEndRef} />
+            </div>
+
+            {/* Suggestion chips */}
+            {chat.length === 0 && (
+              <div className="flex flex-col gap-1.5 px-4 pb-3 flex-shrink-0">
+                {SUGGESTIONS.map(q => (
+                  <button key={q} onClick={() => sendChat(q)}
+                    className="text-left text-xs px-3 py-2 rounded-lg border transition-colors"
+                    style={{ color: 'var(--text-secondary)', borderColor: 'var(--border)', background: 'var(--bg-secondary)' }}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Input */}
+            <div className="flex gap-2 p-3 border-t flex-shrink-0" style={{ borderColor: 'var(--border)' }}>
+              <input
+                className="input-field flex-1 text-sm py-2 pl-3"
+                placeholder="Ask a question…"
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && sendChat(chatInput)}
+                disabled={chatLoading}
+                autoFocus
+              />
+              <button onClick={() => sendChat(chatInput)} disabled={chatLoading || !chatInput.trim()}
+                className="btn-glow py-2 px-3 text-sm flex-shrink-0"
+                style={{ opacity: chatLoading || !chatInput.trim() ? 0.6 : 1 }}>
+                {chatLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* FAB trigger button */}
+        <button
+          onClick={() => setBubbleOpen(o => !o)}
+          className="fixed bottom-6 right-4 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-95"
+          style={{ background: 'var(--teal-deep)' }}
+          aria-label="Open planning assistant">
+          {bubbleOpen
+            ? <X size={22} color="white" />
+            : (
+              <>
+                <MessageCircle size={22} color="white" />
+                {chat.length === 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-white flex items-center justify-center"
+                    style={{ background: 'var(--pink)', fontSize: '9px', fontWeight: 700 }}>
+                    AI
+                  </span>
+                )}
+              </>
+            )}
+        </button>
       </div>
 
       {/* Upgrade prompt */}

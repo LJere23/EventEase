@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { BrandLogo } from '@/components/layout/BrandLogo';
 import { createClient } from '@/lib/supabase/client';
 
 export default function ResetPasswordPage() {
@@ -31,11 +32,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--bg-primary)' }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/">
-            <span className="font-poppins font-bold text-2xl" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              <span style={{ color: 'var(--teal-deep)' }}>Event</span><span style={{ color: 'var(--pink)' }}>Ease</span>
-            </span>
-          </Link>
+          <BrandLogo size="xl" />
         </div>
 
         <div className="card p-8">
