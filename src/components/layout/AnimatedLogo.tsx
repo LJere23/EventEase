@@ -182,12 +182,11 @@ export default function AnimatedLogo({
         <div style={{ marginTop: Math.round(size * 0.02), textAlign: 'center' }}>
           <div
             style={{
-              fontFamily: "'Playfair Display', 'Georgia', 'Times New Roman', serif",
-              fontWeight: 700,
+              fontFamily: "'BlackEcho', serif",
+              fontWeight: 400,
               fontSize: Math.round(size * 0.18),
               lineHeight: 1,
               letterSpacing: '0.04em',
-              fontStyle: 'italic',
             }}
           >
             <span style={{ color: '#741353' }}>Event</span>

@@ -41,10 +41,9 @@ export function Navbar() {
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <AnimatedLogo size={44} showWordmark={false} />
           <span style={{
-            fontFamily: "'Playfair Display', 'Georgia', 'Times New Roman', serif",
+            fontFamily: "'BlackEcho', serif",
             fontSize: '1.65rem',
-            fontWeight: 700,
-            fontStyle: 'italic',
+            fontWeight: 400,
             letterSpacing: '0.04em',
             lineHeight: 1,
           }}>

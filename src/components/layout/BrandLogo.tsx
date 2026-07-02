@@ -12,10 +12,9 @@ const fontSizes = { sm: '1.5rem', md: '1.9rem', lg: '2.4rem', xl: '3rem' };
 export function BrandLogo({ size = 'md', href = '/', color, className = '' }: BrandLogoProps) {
   const fontSize = fontSizes[size];
   const fontStyle: React.CSSProperties = {
-    fontFamily: "'Playfair Display', 'Georgia', 'Times New Roman', serif",
+    fontFamily: "'BlackEcho', serif",
     fontSize,
-    fontWeight: 700,
-    fontStyle: 'italic',
+    fontWeight: 400,
     letterSpacing: '0.04em',
     lineHeight: 1,
     display: 'inline-block',

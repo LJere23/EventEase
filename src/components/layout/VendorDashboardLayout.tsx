@@ -63,7 +63,7 @@ export function VendorDashboardLayout({ children, businessName: propBusinessName
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-2">
             <AnimatedLogo size={36} showWordmark={false} />
-            <span style={{ fontFamily: "'Playfair Display', 'Georgia', serif", fontSize: '1.35rem', fontWeight: 700, fontStyle: 'italic', letterSpacing: '0.04em', lineHeight: 1 }}>
+            <span style={{ fontFamily: "'BlackEcho', serif", fontSize: '1.35rem', fontWeight: 400, letterSpacing: '0.04em', lineHeight: 1 }}>
               <span style={{ color: '#741353' }}>Event</span>
               <span style={{ color: '#E9409B' }}>Ease</span>
             </span>
