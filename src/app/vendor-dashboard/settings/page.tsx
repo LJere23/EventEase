@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef } from 'react';
 import { VendorDashboardLayout } from '@/components/layout/VendorDashboardLayout';
-import { Camera, Save, User, Building2, MapPin, Phone, Globe, Upload, Trash2 } from 'lucide-react';
+import { Camera, Save, User, Building2, MapPin, Phone, Upload, Trash2, MessageCircle } from 'lucide-react';
 
 const CATEGORIES = [
   'Catering', 'Photography', 'Videography', 'Décor & Flowers', 'DJ & Music',
@@ -33,7 +33,6 @@ export default function VendorSettingsPage() {
     phone: '',
     whatsapp: '',
     email: '',
-    website: '',
     // Personal
     ownerName: '',
     ownerPhone: '',
@@ -267,22 +266,35 @@ export default function VendorSettingsPage() {
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
-            {field('Business Phone *', 'phone', 'tel', '+263 77 123 4567')}
-            {field('WhatsApp Number', 'whatsapp', 'tel', '+263 77 123 4567')}
-            {field('Business Email *', 'email', 'email', 'info@yourbusiness.co.zw')}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                Website / Social Link
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
+                Business Phone *
               </label>
               <div className="relative">
-                <Globe size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-secondary)' }} />
-                <input type="url" className="input-field" style={{ paddingLeft: '38px' }}
-                  placeholder="www.yourbusiness.co.zw or Instagram link"
-                  value={profile.website}
-                  onChange={e => setProfile(p => ({ ...p, website: e.target.value }))} />
+                <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-secondary)' }} />
+                <input type="tel" className="input-field" style={{ paddingLeft: '38px' }}
+                  placeholder="+263 77 123 4567"
+                  value={profile.phone}
+                  onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} />
               </div>
             </div>
+            <div>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
+                WhatsApp Number
+              </label>
+              <div className="relative">
+                <MessageCircle size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#25D366' }} />
+                <input type="tel" className="input-field" style={{ paddingLeft: '38px' }}
+                  placeholder="+263 77 123 4567"
+                  value={profile.whatsapp}
+                  onChange={e => setProfile(p => ({ ...p, whatsapp: e.target.value }))} />
+              </div>
+            </div>
+            {field('Business Email *', 'email', 'email', 'info@yourbusiness.co.zw')}
           </div>
+          <p className="text-xs mt-3" style={{ color: 'var(--text-secondary)' }}>
+            Only phone, WhatsApp, and email are shown to clients on your public profile.
+          </p>
         </div>
 
         {/* Personal / Owner Details */}

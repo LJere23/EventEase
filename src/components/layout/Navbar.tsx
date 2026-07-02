@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTheme } from './ThemeProvider';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BrandLogo } from './BrandLogo';
+import AnimatedLogo from './AnimatedLogo';
 
 const navLinks = [
   { label: 'Services', href: '/services' },
@@ -38,7 +38,19 @@ export function Navbar() {
     }}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Logo */}
-        <BrandLogo size="lg" />
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <AnimatedLogo size={44} showWordmark={false} />
+          <span style={{
+            fontFamily: "'Savoye LET', 'Pinyon Script', cursive",
+            fontSize: '1.9rem',
+            fontWeight: 400,
+            letterSpacing: '0.01em',
+            lineHeight: 1,
+          }}>
+            <span style={{ color: '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
+            <span style={{ color: '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
+          </span>
+        </Link>
 
         {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-1">

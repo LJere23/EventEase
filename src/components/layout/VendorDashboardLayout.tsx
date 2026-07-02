@@ -3,16 +3,17 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { BrandLogo } from './BrandLogo';
+import AnimatedLogo from './AnimatedLogo';
 import {
   LayoutDashboard, Package, Calendar, MessageSquare, BarChart2,
-  Settings, LogOut, Menu, X, Bell, Sun, Moon, ChevronRight,
+  Settings, LogOut, Menu, X, Bell, Sun, Moon, ChevronRight, BookOpen,
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/vendor-dashboard' },
+  { icon: BookOpen, label: 'My Catalogue', href: '/vendor-dashboard/catalogue' },
   { icon: Package, label: 'My Services', href: '/vendor-dashboard/services' },
   { icon: Calendar, label: 'Bookings', href: '/vendor-dashboard/bookings' },
   { icon: MessageSquare, label: 'Quote Requests', href: '/vendor-dashboard/quotes' },
@@ -46,7 +47,7 @@ export function VendorDashboardLayout({ children, businessName: propBusinessName
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (
@@ -59,8 +60,14 @@ export function VendorDashboardLayout({ children, businessName: propBusinessName
         )}
         style={{ background: 'var(--bg-primary)', borderRight: '1px solid var(--border)' }}
       >
-        <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border)' }}>
-          <BrandLogo size="md" />
+        <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-2">
+            <AnimatedLogo size={36} showWordmark={false} />
+            <span style={{ fontFamily: "'Savoye LET', 'Pinyon Script', cursive", fontSize: '1.4rem', lineHeight: 1 }}>
+              <span style={{ color: '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
+              <span style={{ color: '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
+            </span>
+          </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden" style={{ color: 'var(--text-secondary)' }}>
             <X size={18} />
           </button>

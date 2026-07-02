@@ -28,7 +28,7 @@ export default function VendorDashboardPage() {
       <div className="mb-6">
         <h1 className="font-poppins font-bold text-2xl mb-1"
           style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
-          Welcome back 👋
+          Welcome back
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>Your profile is live and receiving enquiries.</p>
       </div>

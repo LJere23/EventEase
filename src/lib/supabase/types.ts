@@ -13,8 +13,22 @@ export interface Database {
           role: 'organiser' | 'vendor' | 'admin';
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at'>;
-        Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
+        Insert: {
+          id: string;
+          full_name?: string | null;
+          avatar_url?: string | null;
+          phone?: string | null;
+          city?: string | null;
+          role?: 'organiser' | 'vendor' | 'admin';
+        };
+        Update: {
+          full_name?: string | null;
+          avatar_url?: string | null;
+          phone?: string | null;
+          city?: string | null;
+          role?: 'organiser' | 'vendor' | 'admin';
+        };
+        Relationships: [];
       };
       vendor_profiles: {
         Row: {
@@ -36,8 +50,37 @@ export interface Database {
           verified: boolean;
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['vendor_profiles']['Row'], 'id' | 'rating' | 'review_count' | 'verified' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['vendor_profiles']['Insert']>;
+        Insert: {
+          user_id: string;
+          business_name: string;
+          category: string;
+          city: string;
+          description?: string | null;
+          address?: string | null;
+          website?: string | null;
+          whatsapp?: string | null;
+          email?: string | null;
+          logo_url?: string | null;
+          cover_url?: string | null;
+          price_range?: string | null;
+        };
+        Update: {
+          business_name?: string;
+          category?: string;
+          city?: string;
+          description?: string | null;
+          address?: string | null;
+          website?: string | null;
+          whatsapp?: string | null;
+          email?: string | null;
+          logo_url?: string | null;
+          cover_url?: string | null;
+          price_range?: string | null;
+          rating?: number;
+          review_count?: number;
+          verified?: boolean;
+        };
+        Relationships: [];
       };
       events: {
         Row: {
@@ -56,8 +99,35 @@ export interface Database {
           ai_plan: Json | null;
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['events']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['events']['Insert']>;
+        Insert: {
+          user_id: string;
+          title: string;
+          type: string;
+          date: string;
+          guests?: number;
+          budget?: number | null;
+          venue?: string | null;
+          city?: string | null;
+          description?: string | null;
+          status?: 'planning' | 'confirmed' | 'completed' | 'cancelled';
+          cover_url?: string | null;
+          ai_plan?: Record<string, unknown> | null;
+        };
+        Update: {
+          user_id?: string;
+          title?: string;
+          type?: string;
+          date?: string;
+          guests?: number;
+          budget?: number | null;
+          venue?: string | null;
+          city?: string | null;
+          description?: string | null;
+          status?: 'planning' | 'confirmed' | 'completed' | 'cancelled';
+          cover_url?: string | null;
+          ai_plan?: Record<string, unknown> | null;
+        };
+        Relationships: [];
       };
       quote_requests: {
         Row: {
@@ -74,6 +144,7 @@ export interface Database {
         };
         Insert: Omit<Database['public']['Tables']['quote_requests']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['quote_requests']['Insert']>;
+        Relationships: [];
       };
       quote_responses: {
         Row: {
@@ -86,6 +157,7 @@ export interface Database {
         };
         Insert: Omit<Database['public']['Tables']['quote_responses']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['quote_responses']['Insert']>;
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -102,6 +174,7 @@ export interface Database {
         };
         Insert: Omit<Database['public']['Tables']['bookings']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['bookings']['Insert']>;
+        Relationships: [];
       };
       tickets: {
         Row: {
@@ -116,7 +189,10 @@ export interface Database {
         };
         Insert: Omit<Database['public']['Tables']['tickets']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['tickets']['Insert']>;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
   };
 }

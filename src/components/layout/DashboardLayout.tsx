@@ -5,12 +5,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, CalendarPlus, Calendar, Users, Bookmark,
   Ticket, Settings, LogOut, Menu, X, Bell, Sparkles, Sun, Moon,
-  ChevronRight, TrendingUp
+  ChevronRight, TrendingUp, Store
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
-import { BrandLogo } from './BrandLogo';
+import AnimatedLogo from './AnimatedLogo';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard',      href: '/dashboard' },
@@ -52,7 +52,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (
@@ -66,8 +66,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         style={{ background: 'var(--bg-primary)', borderRight: '1px solid var(--border)' }}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border)' }}>
-          <BrandLogo size="md" />
+        <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-2">
+            <AnimatedLogo size={36} showWordmark={false} />
+            <span style={{ fontFamily: "'Savoye LET', 'Pinyon Script', cursive", fontSize: '1.4rem', lineHeight: 1 }}>
+              <span style={{ color: '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
+              <span style={{ color: '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
+            </span>
+          </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden" style={{ color: 'var(--text-secondary)' }}>
             <X size={18} />
           </button>
@@ -119,6 +125,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Bottom */}
         <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <Link
+            href="/vendor-dashboard"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm mb-1 transition-colors hover:bg-[var(--bg-secondary)]"
+            style={{ color: 'var(--text-secondary)', fontFamily: "'Poppins', sans-serif" }}
+          >
+            <Store size={16} /> Vendor Dashboard
+          </Link>
           <button
             onClick={handleSignOut}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm transition-colors hover:bg-red-50"

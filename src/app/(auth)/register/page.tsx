@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Building2, Sun, Moon, CheckCircle } from 'lucide-react';
 import { useTheme } from '@/components/layout/ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
-import { BrandLogo } from '@/components/layout/BrandLogo';
+import AnimatedLogo from '@/components/layout/AnimatedLogo';
 
 function RegisterForm() {
   const { theme, toggle } = useTheme();
@@ -68,7 +68,7 @@ function RegisterForm() {
             })}
           </g>
         </svg>
-        <BrandLogo size="lg" color="white" />
+        <AnimatedLogo size={80} showWordmark={false} />
         <div className="relative z-10">
           <h2 className="font-poppins font-bold text-4xl text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
             {role === 'vendor' ? 'Grow Your Event Business' : 'Plan Better Events'}
@@ -99,7 +99,7 @@ function RegisterForm() {
             <ArrowLeft size={16} /> Back home
           </Link>
           <div className="flex items-center gap-3">
-            <span className="lg:hidden"><BrandLogo size="md" href="" /></span>
+            <span className="lg:hidden"><AnimatedLogo size={32} showWordmark={false} /></span>
             <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme">
               <div className="theme-toggle-thumb">{theme === 'dark' ? <Moon size={12} /> : <Sun size={12} />}</div>
             </button>

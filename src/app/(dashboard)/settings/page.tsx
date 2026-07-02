@@ -1,15 +1,52 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { User, Bell, Lock, Trash2, Save } from 'lucide-react';
+import { User, Bell, Lock, Trash2, Save, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function SettingsPage() {
-  const [name, setName] = useState('Tendai Moyo');
-  const [email, setEmail] = useState('tendai@example.com');
-  const [phone, setPhone] = useState('+263 77 123 4567');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [city, setCity] = useState('Harare');
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [smsNotifs, setSmsNotifs] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      setEmail(user.email ?? '');
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, phone, city')
+        .eq('id', user.id)
+        .single();
+      if (profile) {
+        setName(profile.full_name ?? user.user_metadata?.full_name ?? '');
+        setPhone(profile.phone ?? '');
+        setCity(profile.city ?? 'Harare');
+      } else {
+        setName(user.user_metadata?.full_name ?? '');
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  const saveProfile = async () => {
+    setSaving(true);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('profiles').update({ full_name: name, phone: phone || null, city }).eq('id', user.id);
+    }
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
 
   return (
     <DashboardLayout>
@@ -33,37 +70,48 @@ export default function SettingsPage() {
               Profile Information
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold mb-2"
-                style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>Full Name</label>
-              <input type="text" className="input-field" value={name} onChange={e => setName(e.target.value)} />
+          {loading ? (
+            <div className="flex items-center gap-2 py-4" style={{ color: 'var(--text-secondary)' }}>
+              <Loader2 size={16} className="animate-spin" /> Loading your profile…
             </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2"
-                style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>Email</label>
-              <input type="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2"
-                style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>Phone</label>
-              <input type="tel" className="input-field" value={phone} onChange={e => setPhone(e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2"
-                style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>City</label>
-              <select className="input-field" value={city} onChange={e => setCity(e.target.value)}>
-                <option>Harare</option>
-                <option>Bulawayo</option>
-                <option>Mutare</option>
-                <option>Gweru</option>
-                <option>Masvingo</option>
-              </select>
-            </div>
-          </div>
-          <button className="btn-glow btn-ripple mt-5" onClick={() => alert('Profile saved!')}>
-            <Save size={14} /> Save Changes
-          </button>
+          ) : (
+            <>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2"
+                    style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>Full Name</label>
+                  <input type="text" className="input-field" value={name} onChange={e => setName(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2"
+                    style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>Email</label>
+                  <input type="email" className="input-field" value={email} disabled
+                    style={{ opacity: 0.7, cursor: 'not-allowed' }} />
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Email cannot be changed here.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2"
+                    style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>Phone</label>
+                  <input type="tel" className="input-field" placeholder="+263 77 000 0000" value={phone} onChange={e => setPhone(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2"
+                    style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>City</label>
+                  <select className="input-field" value={city} onChange={e => setCity(e.target.value)}>
+                    <option>Harare</option>
+                    <option>Bulawayo</option>
+                    <option>Mutare</option>
+                    <option>Gweru</option>
+                    <option>Masvingo</option>
+                  </select>
+                </div>
+              </div>
+              <button className="btn-glow btn-ripple mt-5" onClick={saveProfile} disabled={saving}>
+                {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                {saved ? 'Saved!' : saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </>
+          )}
         </div>
 
         {/* Notifications */}

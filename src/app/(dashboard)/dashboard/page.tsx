@@ -18,7 +18,10 @@ const SUGGESTIONS = [
 ];
 
 interface ChatMessage { role: 'user' | 'assistant'; text: string; }
-interface LocalEvent { id: string; title: string; type: string; date: string; status: string; checklist?: { tasks: { done: boolean }[] }[]; }
+interface LocalEvent {
+  id: string; title: string; type: string; date: string; status: string;
+  ai_plan?: { checklist?: { category: string; tasks: { task: string; done: boolean }[] }[] } | null;
+}
 
 export default function DashboardPage() {
   const [userName, setUserName] = useState('');
@@ -37,19 +40,21 @@ export default function DashboardPage() {
     const h = new Date().getHours();
     setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
 
-    // Real user name from Supabase
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
       const name: string = user.user_metadata?.full_name || user.email?.split('@')[0] || 'there';
-      setUserName(name.split(' ')[0]); // first name only
-    });
+      setUserName(name.split(' ')[0]);
 
-    // Events from localStorage
-    try {
-      const saved = JSON.parse(localStorage.getItem('ee-events') || '[]');
-      setEvents(saved);
-    } catch { /* ignore */ }
+      // Load events from Supabase
+      const { data } = await supabase
+        .from('events')
+        .select('id, title, type, date, status, ai_plan')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (data) setEvents(data as LocalEvent[]);
+    });
   }, []);
 
   useEffect(() => {
@@ -88,8 +93,8 @@ export default function DashboardPage() {
     setChatLoading(false);
   };
 
-  const totalTasks = events.flatMap(e => e.checklist?.flatMap(c => c.tasks) ?? []).length;
-  const doneTasks  = events.flatMap(e => e.checklist?.flatMap(c => c.tasks) ?? []).filter(t => t.done).length;
+  const totalTasks = events.flatMap(e => e.ai_plan?.checklist?.flatMap(c => c.tasks) ?? []).length;
+  const doneTasks  = events.flatMap(e => e.ai_plan?.checklist?.flatMap(c => c.tasks) ?? []).filter(t => t.done).length;
 
   const quickStats = [
     { label: 'Active Events',   value: events.length.toString(), icon: Calendar,     color: 'var(--teal-deep)',  lightBg: 'rgba(28,182,187,0.1)' },
@@ -154,7 +159,7 @@ export default function DashboardPage() {
           ) : (
             <div className="flex flex-col gap-3 mb-4">
               {events.slice(0, 3).map(event => {
-                const tasks = event.checklist?.flatMap(c => c.tasks) ?? [];
+                const tasks = event.ai_plan?.checklist?.flatMap(c => c.tasks) ?? [];
                 const done = tasks.filter(t => t.done).length;
                 const typeEmoji: Record<string, string> = { wedding: '💍', birthday: '🎂', corporate: '🏢', graduation: '🎓', 'baby-shower': '🎀', church: '⛪', other: '🎉' };
                 return (

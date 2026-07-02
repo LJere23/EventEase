@@ -1,32 +1,98 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { PlanningBubble } from '@/components/layout/PlanningBubble';
 import { Search, MapPin, Star, ArrowRight, CheckCircle, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 const CATEGORIES = ['All', 'Venue', 'Catering', 'Photography', 'Decoration', 'DJ & Entertainment', 'Florist', 'Equipment Hire', 'MC', 'Hair & Makeup'];
 const CITIES = ['All Zimbabwe', 'Harare', 'Bulawayo', 'Gweru', 'Mutare', 'Masvingo'];
 
-const vendors = [
-  { id: '1', name: 'Harare Grand Events', category: 'Venue', location: 'Harare North', rating: 4.9, reviews: 48, price: '$$', badge: 'Verified', specialty: 'Weddings & Corporate', color: '#024F5B', emoji: '🏛️' },
-  { id: '2', name: 'Royal Cuisine Catering', category: 'Catering', location: 'Avenues, Harare', rating: 4.8, reviews: 62, price: '$$', badge: 'Top Rated', specialty: 'African & Continental', color: '#741353', emoji: '🍽️' },
-  { id: '3', name: 'Lens & Light Photography', category: 'Photography', location: 'Borrowdale', rating: 5.0, reviews: 31, price: '$$$', badge: 'Premium', specialty: 'Weddings & Portraits', color: '#1CB6BB', emoji: '📸' },
-  { id: '4', name: 'Blooms & Beyond', category: 'Florist', location: 'Eastlea, Harare', rating: 4.7, reviews: 55, price: '$', badge: 'Best Value', specialty: 'Floral & Decoration', color: '#E9409B', emoji: '💐' },
-  { id: '5', name: 'DJ Madzibaba', category: 'DJ & Entertainment', location: 'Harare CBD', rating: 4.9, reviews: 89, price: '$', badge: 'Popular', specialty: 'All Genres · All Events', color: '#8B920A', emoji: '🎧' },
-  { id: '6', name: 'Marquee Masters Hire', category: 'Equipment Hire', location: 'Msasa, Harare', rating: 4.6, reviews: 40, price: '$$', badge: 'Verified', specialty: 'Tents, Chairs, Sound', color: '#024F5B', emoji: '⛺' },
-  { id: '7', name: 'Glamour Touch Studio', category: 'Hair & Makeup', location: 'Avondale', rating: 4.8, reviews: 37, price: '$$', badge: 'Verified', specialty: 'Bridal & Event', color: '#741353', emoji: '💄' },
-  { id: '8', name: 'Elite MC Services', category: 'MC', location: 'Harare', rating: 4.7, reviews: 24, price: '$', badge: 'Popular', specialty: 'Weddings & Corporates', color: '#1CB6BB', emoji: '🎤' },
-  { id: '9', name: 'Garden View Venue', category: 'Venue', location: 'Avondale, Harare', rating: 4.6, reviews: 19, price: '$', badge: 'Verified', specialty: 'Outdoor Events', color: '#8B920A', emoji: '🌿' },
-];
+const CATEGORY_EMOJI: Record<string, string> = {
+  Venue: '🏛️', Catering: '🍽️', Photography: '📸', Videography: '🎥',
+  'DJ & Entertainment': '🎧', 'Décor & Flowers': '💐', MC: '🎤',
+  'Cake & Pastry': '🎂', Transport: '🚗', 'Makeup & Beauty': '💄',
+  'Hair & Makeup': '💄', Florist: '🌸', Decoration: '✨',
+  'Printing & Stationery': '🖨️', 'Tent & Furniture Hire': '⛺',
+  Equipment: '🔊', Other: '⭐',
+};
+
+const CATEGORY_COLOR: Record<string, string> = {
+  Venue: '#024F5B', Catering: '#741353', Photography: '#1CB6BB',
+  Florist: '#E9409B', 'DJ & Entertainment': '#8B920A', 'Equipment Hire': '#024F5B',
+  'Hair & Makeup': '#741353', MC: '#1CB6BB', Decoration: '#E9409B',
+};
+
+interface Vendor {
+  id: string;
+  name: string;
+  category: string;
+  location: string;
+  rating: number;
+  reviews: number;
+  price: string;
+  badge: string;
+  specialty: string;
+  color: string;
+  emoji: string;
+}
+
+function toVendor(row: {
+  id: string; business_name: string; category: string; city: string;
+  description: string | null; price_range: string | null; rating: number;
+  review_count: number; verified: boolean;
+}): Vendor {
+  const color = CATEGORY_COLOR[row.category] ?? '#741353';
+  const emoji = CATEGORY_EMOJI[row.category] ?? '⭐';
+  const priceMap: Record<string, string> = {
+    'Budget (USD 0–200)': '$',
+    'Mid-range (USD 200–800)': '$$',
+    'Premium (USD 800+)': '$$$',
+  };
+  return {
+    id: row.id,
+    name: row.business_name,
+    category: row.category,
+    location: row.city,
+    rating: row.rating || 4.8,
+    reviews: row.review_count || 0,
+    price: priceMap[row.price_range ?? ''] ?? '$$',
+    badge: row.verified ? 'Verified' : 'New',
+    specialty: row.description?.slice(0, 40) ?? row.category,
+    color,
+    emoji,
+  };
+}
 
 export default function VendorsPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeCity, setActiveCity] = useState('All Zimbabwe');
   const [search, setSearch] = useState('');
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Read ?category= from URL to support Planning Bubble quick-filter links
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('category');
+    if (cat) setActiveCategory(cat);
+
+    const supabase = createClient();
+    supabase
+      .from('vendor_profiles')
+      .select('id, business_name, category, city, description, price_range, rating, review_count, verified')
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setVendors(data.map(toVendor));
+        }
+        setLoading(false);
+      });
+  }, []);
 
   const filtered = vendors.filter(v => {
-    const matchCat = activeCategory === 'All' || v.category === activeCategory;
+    const matchCat = activeCategory === 'All' || v.category.toLowerCase().includes(activeCategory.toLowerCase());
     const matchCity = activeCity === 'All Zimbabwe' || v.location.includes(activeCity);
     const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || v.specialty.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchCity && matchSearch;
@@ -49,7 +115,6 @@ export default function VendorsPage() {
               Every vendor is vetted, reviewed, and ready to make your event extraordinary.
             </p>
 
-            {/* Search bar — fixed icon overlap */}
             <div className="max-w-2xl mx-auto flex gap-3">
               <div className="relative flex-1">
                 <Search size={16} className="absolute top-1/2 -translate-y-1/2 pointer-events-none z-10"
@@ -102,25 +167,40 @@ export default function VendorsPage() {
 
         {/* Results count */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-2">
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Showing <strong style={{ color: 'var(--text-primary)' }}>{filtered.length}</strong> vendor{filtered.length !== 1 ? 's' : ''}
-            {activeCategory !== 'All' && <> in <strong style={{ color: 'var(--text-primary)' }}>{activeCategory}</strong></>}
-          </p>
+          {loading ? (
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Loading vendors...</p>
+          ) : (
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Showing <strong style={{ color: 'var(--text-primary)' }}>{filtered.length}</strong> vendor{filtered.length !== 1 ? 's' : ''}
+              {activeCategory !== 'All' && <> in <strong style={{ color: 'var(--text-primary)' }}>{activeCategory}</strong></>}
+            </p>
+          )}
         </section>
 
         {/* Vendor grid */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="card h-64 animate-pulse" style={{ background: 'var(--bg-secondary)' }} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="card p-16 text-center">
-              <p className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No vendors found</p>
-              <p style={{ color: 'var(--text-secondary)' }}>Try a different category or city.</p>
+              <p className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                {vendors.length === 0 ? 'No vendors have joined yet' : 'No vendors found'}
+              </p>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                {vendors.length === 0
+                  ? 'Be the first to list your business on EventEase!'
+                  : 'Try a different category or city.'}
+              </p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(vendor => (
                 <Link key={vendor.id} href={`/vendors/${vendor.id}`}>
                   <div className="vendor-card cursor-pointer h-full">
-                    {/* Image area */}
                     <div className="h-44 flex items-center justify-center text-5xl relative"
                       style={{ background: `${vendor.color}18` }}>
                       <span>{vendor.emoji}</span>
@@ -141,16 +221,18 @@ export default function VendorsPage() {
                           </h3>
                           <p className="text-sm font-medium" style={{ color: vendor.color }}>{vendor.category}</p>
                         </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <Star size={13} fill="#C9A84C" color="#C9A84C" />
-                          <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{vendor.rating}</span>
-                          <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>({vendor.reviews})</span>
-                        </div>
+                        {vendor.reviews > 0 && (
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Star size={13} fill="#C9A84C" color="#C9A84C" />
+                            <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{vendor.rating}</span>
+                            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>({vendor.reviews})</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3 text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>
                         <span className="flex items-center gap-1"><MapPin size={11} /> {vendor.location}</span>
-                        <span className="flex items-center gap-1"><CheckCircle size={11} /> {vendor.specialty}</span>
+                        <span className="flex items-center gap-1 flex-1 min-w-0 truncate"><CheckCircle size={11} /> {vendor.specialty}</span>
                       </div>
 
                       <div className="flex items-center justify-between pt-3 border-t"
@@ -186,6 +268,7 @@ export default function VendorsPage() {
         </section>
       </main>
       <Footer />
+      <PlanningBubble />
     </>
   );
 }

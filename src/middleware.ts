@@ -24,10 +24,9 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // TEMP: admin auth bypassed for testing — restore before going live
-
-  // Protect /dashboard/* and /events/* — requires any authenticated user
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/events')) {
+  // Protect dashboard pages — requires any authenticated user
+  const dashboardPaths = ['/dashboard', '/events', '/bookings', '/tickets', '/settings', '/upgrade'];
+  if (dashboardPaths.some(p => pathname.startsWith(p))) {
     if (!user) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -35,6 +34,13 @@ export async function middleware(request: NextRequest) {
 
   // Protect /vendor-dashboard/* — requires authenticated user
   if (pathname.startsWith('/vendor-dashboard')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  // Protect /admin/* — requires authenticated user with admin role
+  if (pathname.startsWith('/admin')) {
     if (!user) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -48,8 +54,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect already-logged-in users away from auth pages
+  // Only redirect if the request doesn't have a 'logout' search param (hard-reload after signOut)
   if ((pathname === '/login' || pathname === '/register') && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const from = request.nextUrl.searchParams.get('from');
+    if (from === 'vendors') {
+      // Already handled above, keep going
+    } else {
+      const role = user.user_metadata?.role as string | undefined;
+      if (role === 'vendor') return NextResponse.redirect(new URL('/vendor-dashboard', request.url));
+      if (role === 'admin') return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
 
   return response;
@@ -62,6 +77,14 @@ export const config = {
     '/events/:path*',
     '/vendor-dashboard/:path*',
     '/vendors/:path*',
+    '/bookings/:path*',
+    '/bookings',
+    '/tickets/:path*',
+    '/tickets',
+    '/settings/:path*',
+    '/settings',
+    '/upgrade/:path*',
+    '/upgrade',
     '/login',
     '/register',
   ],

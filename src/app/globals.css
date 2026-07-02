@@ -12,6 +12,10 @@
   --teal:           #1CB6BB;
   --mint:           #A0E5E5;
 
+  /* AnimatedLogo color — matches brand plum */
+  --ee-logo-color:  #741353;
+  --ee-logo-tagline: #b08a8a;
+
   /* Light mode tokens */
   --bg-primary:     #ffffff;
   --bg-secondary:   #f4fbfc;

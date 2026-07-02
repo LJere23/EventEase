@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { BrandLogo } from './BrandLogo';
+import AnimatedLogo from './AnimatedLogo';
 import {
   LayoutDashboard, Store, CreditCard, Users, Calendar,
   BarChart2, Settings, LogOut, Menu, X, Bell, ShieldCheck,
@@ -31,7 +31,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (
@@ -51,7 +51,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <ShieldCheck size={16} className="text-white" />
             </div>
             <div>
-              <BrandLogo size="md" href="" color="#A0E5E5" />
+              <AnimatedLogo size={28} showWordmark={false} />
               <p className="text-xs" style={{ color: 'rgba(160,229,229,0.6)', lineHeight: 1 }}>Admin Panel</p>
             </div>
           </Link>

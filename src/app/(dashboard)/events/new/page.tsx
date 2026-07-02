@@ -5,6 +5,7 @@ import {
   Sparkles, Calendar, Users, DollarSign, MapPin, ChevronRight,
   ChevronLeft, CheckCircle, Clock, Loader2, Plus, Trash2
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 const EVENT_TYPES = [
   { value: 'wedding', label: 'Wedding', emoji: '💍' },
@@ -59,6 +60,7 @@ const FALLBACK: AIResult = {
 export default function CreateEventPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [aiResult, setAiResult] = useState<AIResult | null>(null);
   const [newTask, setNewTask] = useState<Record<string, string>>({});
 
@@ -531,29 +533,37 @@ export default function CreateEventPage() {
             </div>
 
             <button
-              onClick={() => {
+              disabled={saving}
+              onClick={async () => {
                 if (!aiResult) return;
-                const event = {
-                  id: `evt_${Date.now()}`,
+                setSaving(true);
+                const sb = createClient();
+                const { data: { user } } = await sb.auth.getUser();
+                if (!user) { window.location.href = '/login'; return; }
+                await sb.from('events').insert({
+                  user_id: user.id,
                   title: form.title || `${form.eventType} Event`,
                   type: form.eventType,
                   date: form.date,
-                  guestCount: form.guestCount,
-                  budget: form.budget,
+                  guests: parseInt(form.guestCount) || 0,
+                  budget: form.budget ? parseFloat(form.budget) : null,
                   status: 'planning',
-                  checklist: aiResult.checklist,
-                  timeline: aiResult.timeline,
-                  budgetAllocation: aiResult.budget,
-                  vendors: aiResult.vendors,
-                  createdAt: new Date().toISOString(),
-                };
-                const existing = JSON.parse(localStorage.getItem('ee-events') || '[]');
-                localStorage.setItem('ee-events', JSON.stringify([event, ...existing]));
+                  description: form.requirements || null,
+                  ai_plan: {
+                    checklist: aiResult.checklist,
+                    timeline: aiResult.timeline,
+                    budgetAllocation: aiResult.budget,
+                    vendors: aiResult.vendors,
+                    venuePreference: form.venuePreference,
+                    theme: form.theme,
+                  } as Record<string, unknown>,
+                });
                 window.location.href = '/events';
               }}
               className="btn-glow btn-ripple w-full justify-center"
+              style={{ opacity: saving ? 0.7 : 1 }}
             >
-              <CheckCircle size={16} /> Save Event to My Events
+              {saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : <><CheckCircle size={16} /> Save Event to My Events</>}
             </button>
           </div>
         )}

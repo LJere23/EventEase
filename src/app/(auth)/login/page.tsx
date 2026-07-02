@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, Sun, Moon, ArrowRight, CheckCircle } from 'lucide-react';
 import { useTheme } from '@/components/layout/ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
-import { BrandLogo } from '@/components/layout/BrandLogo';
+import AnimatedLogo from '@/components/layout/AnimatedLogo';
 
 type View = 'login' | 'forgot' | 'reset-sent';
 
@@ -81,7 +81,7 @@ export default function LoginPage() {
           })}
         </g>
       </svg>
-      <BrandLogo size="lg" color="white" />
+      <AnimatedLogo size={80} showWordmark={false} className="mb-2" />
       <div className="relative z-10">
         <h2 className="font-poppins font-bold text-4xl text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
           Welcome back to EventEase
@@ -117,7 +117,9 @@ export default function LoginPage() {
         </Link>
       )}
       <div className="flex items-center gap-3">
-        <span className="lg:hidden"><BrandLogo size="md" href="" /></span>
+        <span className="lg:hidden">
+          <AnimatedLogo size={32} showWordmark={false} />
+        </span>
         <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme">
           <div className="theme-toggle-thumb">{theme === 'dark' ? <Moon size={12} /> : <Sun size={12} />}</div>
         </button>
