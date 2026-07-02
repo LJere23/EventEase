@@ -37,7 +37,7 @@ const kpis = [
   { label: 'Active Vendors',    value: '63',         delta: '+5 this month', up: true, color: '#E9409B', icon: Store },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number }[]; label?: string }) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl px-3 py-2 shadow-lg text-sm" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>

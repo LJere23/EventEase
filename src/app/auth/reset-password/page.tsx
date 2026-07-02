@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import AnimatedLogo from '@/components/layout/AnimatedLogo';
 import { createClient } from '@/lib/supabase/client';

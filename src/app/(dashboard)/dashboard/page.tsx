@@ -25,7 +25,7 @@ interface LocalEvent {
 
 export default function DashboardPage() {
   const [userName, setUserName] = useState('');
-  const [greeting, setGreeting] = useState('Good morning');
+  const [greeting] = useState(() => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; });
   const [events, setEvents] = useState<LocalEvent[]>([]);
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
@@ -36,10 +36,6 @@ export default function DashboardPage() {
   const bubbleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Greeting based on time
-    const h = new Date().getHours();
-    setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
-
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
@@ -240,7 +236,7 @@ export default function DashboardPage() {
                       <Sparkles size={13} color="white" />
                     </div>
                     <div className="text-sm p-3 rounded-xl rounded-tl-none flex-1" style={{ background: 'var(--primary-light)', color: 'var(--text-primary)' }}>
-                      Hi{userName ? ` ${userName}` : ''}! I'm your EventEase planning assistant. Ask me anything about your events or vendors.
+                      Hi{userName ? ` ${userName}` : ''}! I&apos;m your EventEase planning assistant. Ask me anything about your events or vendors.
                     </div>
                   </div>
                 )}

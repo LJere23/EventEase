@@ -61,7 +61,7 @@ export default function EventsPage() {
         </div>
       ) : error ? (
         <div className="card p-12 text-center">
-          <p className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Couldn't load events</p>
+          <p className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Couldn&apos;t load events</p>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Make sure the database schema has been applied in Supabase.
           </p>

@@ -30,6 +30,7 @@ export function HeroSection() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {

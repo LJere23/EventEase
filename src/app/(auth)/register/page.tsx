@@ -2,7 +2,7 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Building2, Sun, Moon, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Building2, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/components/layout/ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
 import AnimatedLogo from '@/components/layout/AnimatedLogo';
@@ -117,7 +117,7 @@ function RegisterForm() {
               Check your inbox
             </h1>
             <p className="mb-2" style={{ color: 'var(--text-secondary)' }}>
-              We've sent a verification link to:
+              We&apos;ve sent a verification link to:
             </p>
             <p className="font-semibold text-lg mb-6" style={{ color: 'var(--teal-deep)' }}>{submittedEmail}</p>
             <div className="card p-5 text-left mb-6">
@@ -134,7 +134,7 @@ function RegisterForm() {
               ))}
             </div>
             <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-              Didn't receive it? Check your spam folder, or{' '}
+              Didn&apos;t receive it? Check your spam folder, or{' '}
               <button onClick={() => setSubmitted(false)} className="font-semibold hover:underline" style={{ color: 'var(--teal-deep)' }}>
                 try again
               </button>.

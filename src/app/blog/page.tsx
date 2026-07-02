@@ -1,7 +1,6 @@
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { ArrowRight, Calendar } from 'lucide-react';
-import Link from 'next/link';
+import { Calendar } from 'lucide-react';
 
 const posts = [
   { id: '1', title: 'How to Plan a Wedding in Harare on Any Budget', category: 'Weddings', date: 'Jun 15, 2026', read: '6 min', color: '#E9409B', emoji: '💍' },

@@ -206,7 +206,7 @@ export default function LoginPage() {
               Reset your password
             </h1>
             <p className="mb-8" style={{ color: 'var(--text-secondary)' }}>
-              Enter your account email and we'll send you a reset link.
+              Enter your account email and we&apos;ll send you a reset link.
             </p>
 
             {error && (
@@ -247,7 +247,7 @@ export default function LoginPage() {
             <p className="mb-2" style={{ color: 'var(--text-secondary)' }}>We emailed a password reset link to:</p>
             <p className="font-semibold text-lg mb-6" style={{ color: 'var(--teal-deep)' }}>{resetEmail}</p>
             <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Click the link in that email to set a new password. Check your spam folder if you don't see it.
+              Click the link in that email to set a new password. Check your spam folder if you don&apos;t see it.
             </p>
             <button onClick={() => { setView('login'); setError(''); }}
               className="btn-glow btn-ripple justify-center w-full">

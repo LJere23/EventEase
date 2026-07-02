@@ -41,14 +41,15 @@ export function Navbar() {
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <AnimatedLogo size={44} showWordmark={false} />
           <span style={{
-            fontFamily: "'Savoye LET', 'Pinyon Script', cursive",
-            fontSize: '1.9rem',
-            fontWeight: 400,
-            letterSpacing: '0.01em',
+            fontFamily: "'Playfair Display', 'Georgia', 'Times New Roman', serif",
+            fontSize: '1.65rem',
+            fontWeight: 700,
+            fontStyle: 'italic',
+            letterSpacing: '0.04em',
             lineHeight: 1,
           }}>
-            <span style={{ color: '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
-            <span style={{ color: '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
+            <span style={{ color: '#741353' }}>Event</span>
+            <span style={{ color: '#E9409B' }}>Ease</span>
           </span>
         </Link>
 

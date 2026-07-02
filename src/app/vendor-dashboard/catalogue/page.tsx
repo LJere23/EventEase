@@ -46,6 +46,7 @@ export default function CataloguePage() {
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setItems(saved);
     } catch { /* ignore */ }
   }, []);

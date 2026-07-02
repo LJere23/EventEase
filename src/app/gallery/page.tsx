@@ -1,8 +1,9 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Camera, Heart, MessageCircle, Share2, Upload, X, MapPin, Sparkles, Send, Check } from 'lucide-react';
 
 type Category = 'all' | 'wedding' | 'corporate' | 'birthday' | 'graduation' | 'festival';
@@ -136,6 +137,7 @@ export default function GalleryPage() {
   useEffect(() => {
     try {
       const savedLiked = JSON.parse(localStorage.getItem('gallery-liked') || '[]');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (savedLiked.length) setLiked(new Set(savedLiked as string[]));
     } catch { /* ignore */ }
     try {
@@ -146,6 +148,7 @@ export default function GalleryPage() {
         for (const [id, comments] of Object.entries(savedComments as Record<string, Comment[]>)) {
           merged[id] = comments;
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAllComments(merged);
       }
     } catch { /* ignore */ }
@@ -167,7 +170,7 @@ export default function GalleryPage() {
   const filtered = active === 'all' ? posts : posts.filter(p => p.category === active);
 
   const toggleLike = (id: string) => {
-    setLiked(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    setLiked(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   };
 
   const openComments = (post: GalleryPost) => {
@@ -231,7 +234,7 @@ export default function GalleryPage() {
         <div className="relative max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-sm font-medium"
             style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)' }}>
-            <Sparkles size={13} /> Zimbabwe's Event Showcase
+            <Sparkles size={13} /> Zimbabwe&apos;s Event Showcase
           </div>
           <h1 className="font-poppins font-bold text-5xl sm:text-6xl text-white mb-5 leading-tight"
             style={{ fontFamily: "'Poppins', sans-serif", textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
@@ -295,11 +298,12 @@ export default function GalleryPage() {
 
                   {/* Photo area */}
                   <div className="relative overflow-hidden" style={{ height: '220px', background: '#1A1A2E' }}>
-                    <img
+                    <Image
                       src={post.imageUrl}
                       alt={post.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
                       style={{ background: 'rgba(26,26,46,0.45)', backdropFilter: 'blur(2px)' }}>
@@ -321,7 +325,7 @@ export default function GalleryPage() {
                       {post.title}
                     </h3>
                     <p className="text-xs italic mb-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                      "{post.caption}"
+                      &quot;{post.caption}&quot;
                     </p>
                     <div className="flex items-center gap-1 mb-4">
                       <MapPin size={11} style={{ color: '#E9409B', flexShrink: 0 }} />
@@ -369,7 +373,7 @@ export default function GalleryPage() {
             Ready to plan your next event?
           </h2>
           <p className="mb-8 text-lg" style={{ color: 'rgba(255,255,255,0.75)' }}>
-            Join EventEase — Zimbabwe's leading event platform — and start creating memories worth sharing.
+            Join EventEase — Zimbabwe&apos;s leading event platform — and start creating memories worth sharing.
           </p>
           <Link href="/register"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm transition-all"

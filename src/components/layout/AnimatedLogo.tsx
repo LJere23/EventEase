@@ -182,19 +182,16 @@ export default function AnimatedLogo({
         <div style={{ marginTop: Math.round(size * 0.02), textAlign: 'center' }}>
           <div
             style={{
-              fontFamily: "'Savoye LET', 'Pinyon Script', cursive",
-              fontWeight: 400,
-              fontSize: Math.round(size * 0.2),
+              fontFamily: "'Playfair Display', 'Georgia', 'Times New Roman', serif",
+              fontWeight: 700,
+              fontSize: Math.round(size * 0.18),
               lineHeight: 1,
-              letterSpacing: '0.01em',
+              letterSpacing: '0.04em',
+              fontStyle: 'italic',
             }}
           >
-            <span style={{ color: '#741353' }}>
-              <span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent
-            </span>
-            <span style={{ color: '#E9409B' }}>
-              <span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase
-            </span>
+            <span style={{ color: '#741353' }}>Event</span>
+            <span style={{ color: '#E9409B' }}>Ease</span>
           </div>
           <div
             style={{

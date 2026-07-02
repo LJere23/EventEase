@@ -7,23 +7,24 @@ interface BrandLogoProps {
   className?: string;
 }
 
-const sizes = { sm: '1.5rem', md: '1.9rem', lg: '2.4rem', xl: '3rem' };
+const fontSizes = { sm: '1.5rem', md: '1.9rem', lg: '2.4rem', xl: '3rem' };
 
 export function BrandLogo({ size = 'md', href = '/', color, className = '' }: BrandLogoProps) {
-  const fontSize = sizes[size];
+  const fontSize = fontSizes[size];
   const fontStyle: React.CSSProperties = {
-    fontFamily: "'Savoye LET', 'Pinyon Script', cursive",
+    fontFamily: "'Playfair Display', 'Georgia', 'Times New Roman', serif",
     fontSize,
-    fontWeight: 400,
-    letterSpacing: '0.01em',
+    fontWeight: 700,
+    fontStyle: 'italic',
+    letterSpacing: '0.04em',
     lineHeight: 1,
     display: 'inline-block',
   };
 
   const text = (
-    <span style={{ ...fontStyle, color: color ?? 'inherit' }} className={className}>
-      <span style={{ color: color ?? '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
-      <span style={{ color: color ?? '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
+    <span style={{ ...fontStyle }} className={className}>
+      <span style={{ color: color ?? '#741353' }}>Event</span>
+      <span style={{ color: color ?? '#E9409B' }}>Ease</span>
     </span>
   );
 

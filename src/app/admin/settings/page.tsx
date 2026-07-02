@@ -69,7 +69,7 @@ export default function AdminSettingsPage() {
             style={{ background: '#E9409B0d', border: '1px solid #E9409B30' }}>
             <AlertTriangle size={16} style={{ color: '#E9409B', flexShrink: 0 }} />
             <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
-              <span className="font-semibold">Maintenance mode is ON.</span> Public users will see a "coming back soon" page.
+              <span className="font-semibold">Maintenance mode is ON.</span> Public users will see a &quot;coming back soon&quot; page.
             </p>
           </div>
         )}

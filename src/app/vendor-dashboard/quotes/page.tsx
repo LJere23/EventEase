@@ -174,7 +174,7 @@ export default function VendorQuotesPage() {
 
                       {/* Client's original message */}
                       <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--bg-secondary)' }}>
-                        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--teal)' }}>Client's Request</p>
+                        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--teal)' }}>Client&apos;s Request</p>
                         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{q.message}</p>
                       </div>
 

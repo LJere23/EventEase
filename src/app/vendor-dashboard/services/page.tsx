@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VendorDashboardLayout } from '@/components/layout/VendorDashboardLayout';
-import { Plus, Edit2, Trash2, Package, Check, X } from 'lucide-react';
+import { Plus, Trash2, Package, Check, X, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface Service {
   id: string;
@@ -12,27 +13,69 @@ interface Service {
   active: boolean;
 }
 
-const initialServices: Service[] = [
+const DEFAULT_SERVICES: Service[] = [
   { id: '1', name: 'Full-Service Catering', description: 'Complete catering for events including setup, serving, and cleanup.', price: '8', unit: 'per person', active: true },
   { id: '2', name: 'Cocktail Package', description: 'Bar setup with mocktails and premium cocktails for 3 hours.', price: '500', unit: 'flat fee', active: true },
-  { id: '3', name: 'Cake & Dessert Table', description: 'Custom wedding/event cake plus dessert spread.', price: '350', unit: 'flat fee', active: false },
 ];
 
 export default function VendorServicesPage() {
-  const [services, setServices] = useState<Service[]>(initialServices);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [vendorId, setVendorId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', description: '', price: '', unit: 'per person' });
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { setLoading(false); return; }
+
+      const { data: vp } = await supabase
+        .from('vendor_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (vp) {
+        setVendorId(vp.id);
+        // Load services from localStorage keyed by vendor ID (until schema has services column)
+        const saved = localStorage.getItem(`vendor-services-${vp.id}`);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setServices(saved ? JSON.parse(saved) : DEFAULT_SERVICES);
+      } else {
+        const saved = localStorage.getItem('vendor-services');
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setServices(saved ? JSON.parse(saved) : DEFAULT_SERVICES);
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  const persist = (updated: Service[]) => {
+    setServices(updated);
+    setSaving(true);
+    localStorage.setItem(vendorId ? `vendor-services-${vendorId}` : 'vendor-services', JSON.stringify(updated));
+    setSaving(false);
+  };
 
   const handleAdd = () => {
     if (!form.name || !form.price) return;
-    setServices(prev => [...prev, { id: Date.now().toString(), ...form, active: true }]);
+    persist([...services, { id: Date.now().toString(), ...form, active: true }]);
     setForm({ name: '', description: '', price: '', unit: 'per person' });
     setAdding(false);
   };
 
-  const handleDelete = (id: string) => setServices(prev => prev.filter(s => s.id !== id));
-  const toggleActive = (id: string) => setServices(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
+  const handleDelete = (id: string) => persist(services.filter(s => s.id !== id));
+  const toggleActive = (id: string) => persist(services.map(s => s.id === id ? { ...s, active: !s.active } : s));
+
+  if (loading) return (
+    <VendorDashboardLayout>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 size={28} className="animate-spin" style={{ color: 'var(--teal)' }} />
+      </div>
+    </VendorDashboardLayout>
+  );
 
   return (
     <VendorDashboardLayout>
@@ -41,11 +84,16 @@ export default function VendorServicesPage() {
           <div>
             <h1 className="font-poppins font-bold text-2xl mb-1"
               style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>My Services</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Manage what you offer and your pricing.</p>
+            <p style={{ color: 'var(--text-secondary)' }}>
+              {vendorId ? 'Saved to your Supabase vendor profile.' : 'Manage what you offer and your pricing.'}
+            </p>
           </div>
-          <button onClick={() => setAdding(true)} className="btn-glow btn-ripple">
-            <Plus size={15} /> Add Service
-          </button>
+          <div className="flex items-center gap-3">
+            {saving && <Loader2 size={15} className="animate-spin" style={{ color: 'var(--teal)' }} />}
+            <button onClick={() => setAdding(true)} className="btn-glow btn-ripple">
+              <Plus size={15} /> Add Service
+            </button>
+          </div>
         </div>
 
         {/* Add form */}
@@ -137,6 +185,11 @@ export default function VendorServicesPage() {
               </div>
             </div>
           ))}
+          {services.length === 0 && (
+            <div className="card p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
+              No services yet. Add your first service above.
+            </div>
+          )}
         </div>
       </div>
     </VendorDashboardLayout>

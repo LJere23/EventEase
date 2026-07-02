@@ -69,7 +69,7 @@ export default function EventDetailPage() {
           <h2 className="font-poppins font-bold text-2xl mb-3" style={{ color: 'var(--text-primary)', fontFamily: "'Poppins', sans-serif" }}>
             Event not found
           </h2>
-          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>This event doesn't exist or was deleted.</p>
+          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>This event doesn&apos;t exist or was deleted.</p>
           <Link href="/events" className="btn-glow btn-ripple inline-flex">
             <ArrowLeft size={14} /> Back to My Events
           </Link>

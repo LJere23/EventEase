@@ -89,7 +89,7 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-2">
             <span className="badge badge-teal text-xs">All-In-One Platform</span>
-            <span className="badge badge-gold text-xs">Zimbabwe's #1</span>
+            <span className="badge badge-gold text-xs">Zimbabwe&apos;s #1</span>
           </div>
         </div>
       </div>

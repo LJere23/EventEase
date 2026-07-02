@@ -69,9 +69,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-2">
             <AnimatedLogo size={36} showWordmark={false} />
-            <span style={{ fontFamily: "'Savoye LET', 'Pinyon Script', cursive", fontSize: '1.4rem', lineHeight: 1 }}>
-              <span style={{ color: '#741353' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>vent</span>
-              <span style={{ color: '#E9409B' }}><span style={{ fontWeight: 800, fontSize: '1.25em' }}>E</span>ase</span>
+            <span style={{ fontFamily: "'Playfair Display', 'Georgia', serif", fontSize: '1.35rem', fontWeight: 700, fontStyle: 'italic', letterSpacing: '0.04em', lineHeight: 1 }}>
+              <span style={{ color: '#741353' }}>Event</span>
+              <span style={{ color: '#E9409B' }}>Ease</span>
             </span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden" style={{ color: 'var(--text-secondary)' }}>

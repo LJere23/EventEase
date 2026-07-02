@@ -77,6 +77,7 @@ export default function VendorsPage() {
     // Read ?category= from URL to support Planning Bubble quick-filter links
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (cat) setActiveCategory(cat);
 
     const supabase = createClient();
